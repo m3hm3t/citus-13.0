@@ -19,12 +19,15 @@ jobs:
       image: ghcr.io/citusdata/exttester:17.2-dev-8c38fe2
 
     steps:
-      - name: Checkout citus release
+      - name: Checkout release-13.0 branch from fork
         uses: actions/checkout@v3
         with:
-          ref: ${{ inputs.citus_release }}  # Checkout the release-13.0 branch
-          repository: citusdata/citus
+          repository: m3hm3t/citus-13.0  # Your forked repository
+          ref: release-13.0             # The branch you want to check out
 
+      - name: Verify Checked Out Branch
+        run: git branch --show-current
+      
       - name: Configure
         run: |
           echo "Current Shell:$0"
