@@ -24,9 +24,6 @@ jobs:
         with:
           repository: m3hm3t/citus-13.0  # Your forked repository
           ref: release-13.0             # The branch you want to check out
-
-      - name: Verify Checked Out Branch
-        run: git branch --show-current
       
       - name: Configure
         run: |
