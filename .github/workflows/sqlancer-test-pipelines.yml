@@ -16,7 +16,7 @@ jobs:
   run-sqlancer-test-on-citus:
     runs-on: ubuntu-latest
     container:
-      image: 'ghcr.io/citusdata/the-process/exttester:17.2-dev-8c38fe2'  # Use the PostgreSQL 17.2 image
+      image: 'citus/exttester:17.2-dev-8c38fe2'  # Use the PostgreSQL 17.2 image
 
     steps:
       - name: Checkout citus release
