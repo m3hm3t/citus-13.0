@@ -7,7 +7,9 @@ on:
         default: main
         description: 'Branch, tag or SHA to run tests against'
         required: true
-
+  push:
+    branches:
+      - '**'  # This triggers the workflow for all branches
 jobs:
 
   run-sqlancer-test-on-citus:
