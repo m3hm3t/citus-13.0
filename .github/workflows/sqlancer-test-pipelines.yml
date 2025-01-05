@@ -7,6 +7,9 @@ on:
         default: release-13.0  # Use release-13.0 as default branch
         description: 'Branch, tag or SHA to run tests against'
         required: true
+  push:  # Automatically trigger workflow on push
+    branches:
+      - '**'  # This triggers the workflow for all branches
 
 jobs:
 
@@ -104,5 +107,13 @@ jobs:
               then
                   errors_table["$error"]="$file "
               else
-                  errors_table["$error"]
+                  errors_table["$error"]=" ${errors_table[$error]}, $file "
+              fi
 
+          done < <(grep -noR "ERROR:.*" logs/citus)
+
+          for key in "${!errors_table[@]}"; do
+              echo "### $key" >> $GITHUB_STEP_SUMMARY
+              echo "in ${errors_table[$key]}"  >> $GITHUB_STEP_SUMMARY
+          done
+        shell: bash
