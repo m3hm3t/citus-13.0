@@ -105,3 +105,4 @@ jobs:
                   errors_table["$error"]="$file "
               else
                   errors_table["$error"]
+
