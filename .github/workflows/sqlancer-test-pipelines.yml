@@ -4,24 +4,22 @@ on:
   workflow_dispatch:
     inputs:
       citus_release:
-        default: main
+        default: release-13.0  # Use release-13.0 as default branch
         description: 'Branch, tag or SHA to run tests against'
         required: true
-  push:
-    branches:
-      - '**'  # This triggers the workflow for all branches
+
 jobs:
 
   run-sqlancer-test-on-citus:
     runs-on: ubuntu-latest
     container:
-      image: 'citus/exttester:15.4-dev-c5dad6b'
+      image: 'ghcr.io/citusdata/the-process/exttester:17.2-dev-8c38fe2'  # Use the PostgreSQL 17.2 image
 
     steps:
       - name: Checkout citus release
         uses: actions/checkout@v3
         with:
-          ref: ${{ inputs.citus_release }}
+          ref: ${{ inputs.citus_release }}  # Checkout the release-13.0 branch
           repository: citusdata/citus
 
       - name: Configure
@@ -33,7 +31,6 @@ jobs:
       - name: Make install-all
         run: |
           make install-all -sj$(cat /proc/cpuinfo | grep "core id" | wc -l) 2>&1 | tee -a output.log
-
 
       - name: Setup Maven
         uses: s4u/setup-maven-action@v1.6.0
@@ -74,6 +71,7 @@ jobs:
           gosu circleci psql -c "CREATE EXTENSION citus;" -p 9702 -d test
           gosu circleci psql -c "SELECT * from citus_add_node('localhost', 9701);" -p 9700 -d test
           gosu circleci psql -c "SELECT * from citus_add_node('localhost', 9702);" -p 9700 -d test
+
       - name: Run Tests
         run: CITUS_AVAILABLE=true mvn -Dtest=TestCitus test 
 
@@ -106,13 +104,4 @@ jobs:
               then
                   errors_table["$error"]="$file "
               else
-                  errors_table["$error"]=" ${errors_table[$error]}, $file "
-              fi
-
-          done < <(grep -noR "ERROR:.*" logs/citus)
-
-          for key in "${!errors_table[@]}"; do
-              echo "### $key" >> $GITHUB_STEP_SUMMARY
-              echo "in ${errors_table[$key]}"  >> $GITHUB_STEP_SUMMARY
-          done
-        shell: bash
+                  errors_table["$error"]
