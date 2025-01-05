@@ -53,14 +53,15 @@ jobs:
         run: |
           mkdir -p citus/coordinator citus/worker1 citus/worker2
           chown -R circleci:circleci citus
-          gosu circleci initdb -D citus/coordinator --encoding=UTF8 --locale=en_US.UTF-8
-          gosu circleci initdb -D citus/worker1 --encoding=UTF8 --locale=en_US.UTF-8
-          gosu circleci initdb -D citus/worker2 --encoding=UTF8 --locale=en_US.UTF-8
+          gosu circleci initdb -D citus/coordinator
+          gosu circleci initdb -D citus/worker1
+          gosu circleci initdb -D citus/worker2
           gosu circleci echo "shared_preload_libraries = 'citus'" >> citus/coordinator/postgresql.conf
           gosu circleci echo "shared_preload_libraries = 'citus'" >> citus/worker1/postgresql.conf
           gosu circleci echo "shared_preload_libraries = 'citus'" >> citus/worker2/postgresql.conf
           gosu circleci pg_ctl -D citus/coordinator -o "-p 9700" -l citus/coordinator_logfile start
           gosu circleci pg_ctl -D citus/worker1 -o "-p 9701" -l citus/worker1_logfile start
+          gosu circleci ls citus/worker1
           gosu circleci pg_ctl -D citus/worker2 -o "-p 9702" -l citus/worker2_logfile start || cat citus/worker2_logfile
           gosu circleci psql -c "CREATE ROLE sqlancer SUPERUSER LOGIN CREATEDB PASSWORD 'sqlancer';" -p 9700 -d postgres
           gosu circleci createdb test -p 9700
@@ -73,6 +74,11 @@ jobs:
           gosu circleci psql -c "CREATE EXTENSION citus;" -p 9702 -d test
           gosu circleci psql -c "SELECT * from citus_add_node('localhost', 9701);" -p 9700 -d test
           gosu circleci psql -c "SELECT * from citus_add_node('localhost', 9702);" -p 9700 -d test
+
+      - name: Verify PostgreSQL Version
+        run: |
+          echo "Coordinator PostgreSQL version:"
+          gosu circleci psql -p 9700 -c "SELECT version();" -d postgres
 
       - name: Run Tests
         run: CITUS_AVAILABLE=true mvn -Dtest=TestCitus test 
