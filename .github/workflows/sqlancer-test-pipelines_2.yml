@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       citus_release:
-        default: main
+        default: release-12.1  # Use release-13.0 as default branch
         description: 'Branch, tag or SHA to run tests against'
         required: true
   push:  # Automatically trigger workflow on push
@@ -19,11 +19,11 @@ jobs:
       image: 'citus/exttester:15.4-dev-c5dad6b'
 
     steps:
-      - name: Checkout citus release
+      - name: Checkout release-13.0 branch from fork
         uses: actions/checkout@v3
         with:
-          ref: ${{ inputs.citus_release }}
-          repository: citusdata/citus
+          repository: m3hm3t/citus-13.0  # Your forked repository
+          ref: release-12.1             # The branch you want to check out
 
       - name: Configure
         run: |
