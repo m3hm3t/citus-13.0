@@ -48,12 +48,22 @@ jobs:
           mvn -B clean package -DskipTests=true
           echo "Listing contents of target directory:"
           ls -l target
-      
+          
+      - name: Verify SQLancer JAR File
+        run: |
+          if [ -f target/sqlancer-2.0.0.jar ]; then
+            echo "SQLancer JAR found: target/sqlancer-2.0.0.jar"
+          else
+            echo "SQLancer JAR not found!"
+            exit 1
+          fi
+            
       - name: Run SQLancer Tests
         run: |
-          java -jar target/sqlancer-2.0.0-shaded.jar \
+          java -jar target/sqlancer-2.0.0.jar \
             --num-threads 4 postgres \
             --connection-url "jdbc:postgresql://localhost/test?user=sqlancer&password=sqlancer"
+
 
       - name: Publish Logs
         if: ${{ always() }}
