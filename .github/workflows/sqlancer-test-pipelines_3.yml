@@ -41,7 +41,10 @@ jobs:
           repository: gokhangulbiz/sqlancer
 
       - name: Build SQLancer
-        run: mvn -B package -DskipTests=true
+        run: |
+          mvn -B package -DskipTests=true
+          echo "Listing contents of target directory:"
+          ls -l sqlancer/target
 
       - name: Run SQLancer Tests
         run: |
