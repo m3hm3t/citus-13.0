@@ -45,11 +45,17 @@ jobs:
       
       - name: Build SQLancer
         run: |
-          cd sqlancer
           mvn -B clean package -DskipTests=true
           echo "Listing contents of target directory:"
           ls -l target
       
+      - name: Verify SQLancer Build
+        run: |
+          if [ ! -f target/sqlancer-*.jar ]; then
+            echo "SQLancer JAR not found!"
+            exit 1
+          fi
+
       - name: Run SQLancer Tests
         run: |
           java -jar sqlancer/target/sqlancer-<correct_version>.jar \
