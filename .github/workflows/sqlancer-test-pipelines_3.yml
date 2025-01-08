@@ -49,16 +49,6 @@ jobs:
           echo "Listing contents of target directory:"
           ls -l target
       
-      - name: Identify SQLancer JAR File
-        id: sqlancer_jar
-        run: |
-          jar_file=$(ls sqlancer/target/sqlancer-*.jar | head -n 1)
-          if [ -z "$jar_file" ]; then
-            echo "SQLancer JAR not found!"
-            exit 1
-          fi
-          echo "jar_file=$jar_file" >> $GITHUB_ENV
-      
       - name: Run SQLancer Tests
         run: |
           java -jar target/sqlancer-2.0.0-shaded.jar \
