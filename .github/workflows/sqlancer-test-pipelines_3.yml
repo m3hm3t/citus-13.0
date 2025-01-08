@@ -2,11 +2,6 @@ name: Run sqlancer tests on PostgreSQL
 
 on:
   workflow_dispatch:
-    inputs:
-      pg_version:
-        default: "15"  # Default PostgreSQL version
-        description: 'PostgreSQL version to use'
-        required: true
   push:
     branches:
       - '**'
@@ -16,7 +11,9 @@ jobs:
   run-sqlancer-test-on-postgres:
     runs-on: ubuntu-latest
     container:
-      image: "postgres:${{ inputs.pg_version }}"  # Use a PostgreSQL container image
+      image: "postgres:17.2"  # Explicitly specify PostgreSQL 17.2 version
+
+
 
     steps:
       - name: Setup PostgreSQL
