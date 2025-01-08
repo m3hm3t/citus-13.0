@@ -62,8 +62,8 @@ jobs:
         run: |
           java -jar target/sqlancer-2.0.0.jar \
             --num-threads 4 postgres \
-            --connection-url "jdbc:postgresql://localhost/test?user=sqlancer&password=sqlancer"
-
+            --connection-url "jdbc:postgresql://localhost:5432/test?user=sqlancer&password=sqlancer"
+    
 
       - name: Publish Logs
         if: ${{ always() }}
