@@ -37,18 +37,22 @@ jobs:
       - name: Checkout Sqlancer
         uses: actions/checkout@v3
         with:
-          ref: main  # Default branch for SQLancer
           repository: gokhangulbiz/sqlancer
-
+          ref: main
+      
+      - name: Verify SQLancer Repository
+        run: ls -l
+      
       - name: Build SQLancer
         run: |
-          mvn -B package -DskipTests=true
+          cd sqlancer
+          mvn -B clean package -DskipTests=true
           echo "Listing contents of target directory:"
-          ls -l sqlancer/target
-
+          ls -l target
+      
       - name: Run SQLancer Tests
         run: |
-          java -jar sqlancer/target/sqlancer-*.jar \
+          java -jar sqlancer/target/sqlancer-<correct_version>.jar \
             --num-threads 4 postgres \
             --connection-url "jdbc:postgresql://localhost/test?user=sqlancer&password=sqlancer"
 
