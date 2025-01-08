@@ -47,18 +47,21 @@ jobs:
         run: |
           mvn -B clean package -DskipTests=true
           echo "Listing contents of target directory:"
-          ls -l target
+          ls -l sqlancer/target
       
-      - name: Verify SQLancer Build
+      - name: Identify SQLancer JAR File
+        id: sqlancer_jar
         run: |
-          if [ ! -f target/sqlancer-*.jar ]; then
+          jar_file=$(ls sqlancer/target/sqlancer-*.jar | head -n 1)
+          if [ -z "$jar_file" ]; then
             echo "SQLancer JAR not found!"
             exit 1
           fi
-
+          echo "jar_file=$jar_file" >> $GITHUB_ENV
+      
       - name: Run SQLancer Tests
         run: |
-          java -jar sqlancer/target/sqlancer-<correct_version>.jar \
+          java -jar ${{ env.jar_file }} \
             --num-threads 4 postgres \
             --connection-url "jdbc:postgresql://localhost/test?user=sqlancer&password=sqlancer"
 
