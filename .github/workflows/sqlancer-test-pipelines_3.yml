@@ -1,0 +1,65 @@
+name: Run sqlancer tests on PostgreSQL
+
+on:
+  workflow_dispatch:
+    inputs:
+      pg_version:
+        default: "15"  # Default PostgreSQL version
+        description: 'PostgreSQL version to use'
+        required: true
+  push:
+    branches:
+      - '**'
+
+jobs:
+
+  run-sqlancer-test-on-postgres:
+    runs-on: ubuntu-latest
+    container:
+      image: "postgres:${{ inputs.pg_version }}"  # Use a PostgreSQL container image
+
+    steps:
+      - name: Setup PostgreSQL
+        run: |
+          mkdir -p /pg_data
+          chown -R postgres:postgres /pg_data
+          gosu postgres initdb -D /pg_data --encoding=UTF8 --locale=en_US.UTF-8
+          echo "shared_preload_libraries = ''" >> /pg_data/postgresql.conf
+          gosu postgres pg_ctl -D /pg_data -l /pg_data/postgresql.log start
+          gosu postgres createdb test
+          gosu postgres psql -c "CREATE ROLE sqlancer SUPERUSER LOGIN CREATEDB PASSWORD 'sqlancer';" -d postgres
+
+      - name: Verify PostgreSQL Version
+        run: gosu postgres psql -c "SELECT version();" -d postgres
+
+      - name: Setup Maven
+        uses: s4u/setup-maven-action@v1.6.0
+        with:
+          java-version: 11
+
+      - name: Checkout Sqlancer
+        uses: actions/checkout@v3
+        with:
+          ref: main  # Default branch for SQLancer
+          repository: gokhangulbiz/sqlancer
+
+      - name: Build SQLancer
+        run: mvn -B package -DskipTests=true
+
+      - name: Run SQLancer Tests
+        run: |
+          java -jar sqlancer/target/sqlancer-*.jar \
+            --num-threads 4 postgres \
+            --connection-url "jdbc:postgresql://localhost/test?user=sqlancer&password=sqlancer"
+
+      - name: Publish Logs
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: logs
+          path: /pg_data/postgresql.log
+
+      - name: Publish Summary
+        if: ${{ always() }}
+        run: |
+          echo "SQLancer tests completed. Logs have been uploaded as artifacts."
