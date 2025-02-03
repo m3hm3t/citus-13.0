@@ -379,7 +379,7 @@ EnsureModificationsCanRun(void)
 
 
 /*
- * EnsureModificationsCanRunOnRelation firsts calls into EnsureModificationsCanRun() and
+ * EnsureModificationsCanRunOnRelation first calls into EnsureModificationsCanRun() and
  * then does one more additional check. The additional check is to give a proper error
  * message if any relation that is modified is replicated, as replicated tables use
  * 2PC and 2PC cannot happen when recovery is in progress.
@@ -2521,6 +2521,8 @@ AvailableExtensionVersion(void)
 
 	ereport(ERROR, (errcode(ERRCODE_OBJECT_NOT_IN_PREREQUISITE_STATE),
 					errmsg("citus extension is not found")));
+
+	return NULL; /* keep compiler happy */
 }
 
 
