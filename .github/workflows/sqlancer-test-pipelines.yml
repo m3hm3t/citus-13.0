@@ -11,6 +11,7 @@ on:
     branches:
       - '**'  # This triggers the workflow for all branches
 
+
 jobs:
 
   run-sqlancer-test-on-citus:
