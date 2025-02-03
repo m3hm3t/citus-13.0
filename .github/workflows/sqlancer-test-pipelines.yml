@@ -1,4 +1,4 @@
-name: Run sqlancer tests
+name: Run sqlancer tests on release13
 
 on:
   workflow_dispatch:
